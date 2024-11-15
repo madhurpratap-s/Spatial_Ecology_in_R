@@ -24,7 +24,7 @@ madhur + maria # This displays the sum of the values assigned to 'madhur' and 'm
 
 madhur ^ maria # This displays the outcome of raising the value assigned to 'madhur' to the value assigned to 'maria'
 
-(madhur + maria) ^ cato # Another example of an operation we can perform
+(madhur + maria) ^ madhur # Another example of an operation we can perform
 
 # Creating arrays (vectors) for plotting
 andrea <- c(10, 15, 20, 50, 70) # in a function arguments are separated by commas  
@@ -52,4 +52,4 @@ plot(sofia, andrea, pch=19, cex=2, col="blue") # Example with blue colored eleme
 # https://r-graph-gallery.com/42-colors-names.html
 
 # xlab and ylab parameters are used to label the x-axis and y-axis of the plot respectively
-plot(sofia, andrea, pch=19, cex=2, col="blue", xlab="CO2", ylab="amount of fruits")
+plot(sofia, andrea, pch=19, cex=2, col="blue", xlab="CO2", ylab="Amount of Fruits")
