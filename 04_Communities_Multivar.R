@@ -38,7 +38,7 @@ perc3 = prop3*100
 perc4 = prop4*100
 
 # Calculate and display the sum of the first two DCA axes' percentages
-perc1+perc2 # Sum of the first two axes
+perc1+perc2 
 # We find that the first two axes explain ~71% of the variability
 
 # Plot the DCA results to visualize the relationship between species and samples
