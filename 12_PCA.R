@@ -42,11 +42,11 @@ sd7 <- focal(nir, matrix(1/49, 7, 7), fun=sd) # Calculate the std. dev. for each
 # Plot all the graphs together using multi-frame
 par(mfrow=c(2,3)) # Set up plotting area with 2 rows and 3 columns
 im.plotRGB(sent, r=2, g=1, b=3) # Plot the original Sentinel image using bands 2, 1, and 3
-plot(sd3, col=viridis)
-plot(sd7, col=viridis)
-plot(pc1, col=viridis)
-plot(pc1sd3, col=viridis)
-plot(pc1sd7, col=viridis)
+plot(sd3, col=viridisc)
+plot(sd7, col=viridisc)
+plot(pc1, col=viridisc)
+plot(pc1sd3, col=viridisc)
+plot(pc1sd7, col=viridisc)
 
 # Stack all standard deviation layers 
 sdstack <- c(sd3, sd7, pc1sd3, pc1sd7)
