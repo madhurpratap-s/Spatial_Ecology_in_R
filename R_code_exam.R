@@ -28,3 +28,30 @@ plot(cropped_before[[3]])
 plot(cropped_after[[3]])
 plot(cropped_before[[2]])
 plot(cropped_after[[2]])
+
+par(mfrow = c(1,2))
+plot(cropped_before)
+before_cl <- im.classify(cropped_before[[3]], num_clusters = 3)
+
+par(mfrow = c(1,2))
+plot(cropped_after)
+after_cl <- im.classify(cropped_after[[3]], num_clusters = 3)
+
+f1979 <- freq(before_cl)
+f1979
+f1980 <- freq(after_cl)
+f1980
+
+par(mfrow = c(1,2))
+ndvi_before <- (cropped_before[[1]] - cropped_before[[3]]) / (cropped_before[[1]] + cropped_before[[3]])
+plot(ndvi_before, main = "NDVI (Before)")
+
+ndvi_after <- (cropped_after[[1]] - cropped_after[[3]]) / (cropped_after[[1]] + cropped_after[[3]])
+plot(ndvi_after, main = "NDVI (After)")
+
+
+par(mfrow = c(1,2))
+dvi_before <- cropped_before[[1]] - cropped_before[[3]]
+plot(dvi_before, main = "DVI (Before)")
+dvi_after <- cropped_after[[1]] - cropped_after[[3]]
+plot(dvi_after, main = "DVI (After)")
