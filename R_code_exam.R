@@ -55,3 +55,31 @@ dvi_before <- cropped_before[[1]] - cropped_before[[3]]
 plot(dvi_before, main = "DVI (Before)")
 dvi_after <- cropped_after[[1]] - cropped_after[[3]]
 plot(dvi_after, main = "DVI (After)")
+
+# Step 1: Perform PCA on the 'before' and 'after' images
+cropped_before_pca <- im.pca(cropped_before)  # Perform PCA on 'before' image
+cropped_after_pca <- im.pca(cropped_after)    # Perform PCA on 'after' image
+
+# Step 2: Extract the first principal component (PC1)
+pc1_before <- cropped_before_pca$PC1
+pc1_after <- cropped_after_pca$PC1
+
+# Step 3: Normalize the PC1 values (0 to 1 scaling)
+pc1_before <- (pc1_before - min(pc1_before[])) / (max(pc1_before[]) - min(pc1_before[]))
+pc1_after <- (pc1_after - min(pc1_after[])) / (max(pc1_after[]) - min(pc1_after[]))
+
+# Step 4: Plot PC1 for 'before' and 'after' side by side
+par(mfrow = c(1, 2))  # Set up a 1x2 plotting area
+plot(pc1_before, main = "PC1 - Before", col = viridis::viridis(255))  # Plot PC1 for 'before'
+plot(pc1_after, main = "PC1 - After", col = viridis::viridis(255))    # Plot PC1 for 'after'
+
+pc1_after_resampled <- resample(pc1_after, pc1_before)
+
+# Calculate the difference between PC1 in 'before' and 'after'
+pc1_diff <- pc1_before - pc1_after_resampled
+
+# Calculate the percentage of pixels with negative changes in PC1
+pc1_reduction <- sum(pc1_diff[] < 0, na.rm = TRUE) / ncell(pc1_diff) * 100
+
+# Print the percentage of reduction
+print(paste("Percentage of area with reduction in PC1:", round(pc1_reduction, 2), "%"))
