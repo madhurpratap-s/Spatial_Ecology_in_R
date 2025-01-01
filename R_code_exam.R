@@ -49,6 +49,21 @@ plot(ndvi_before, main = "NDVI (Before)")
 ndvi_after <- (cropped_after[[1]] - cropped_after[[3]]) / (cropped_after[[1]] + cropped_after[[3]])
 plot(ndvi_after, main = "NDVI (After)")
 
+# Summary Statistics
+mean_before <- as.numeric(global(ndvi_before, mean, na.rm = TRUE))
+mean_after <- as.numeric(global(ndvi_after, mean, na.rm = TRUE))
+cat("Mean NDVI Before:", mean_before, "\n")
+cat("Mean NDVI After:", mean_after, "\n")
+
+#Density plot NDVI
+plot(density(values(ndvi_before), na.rm = TRUE), col = "blue", main = "NDVI Density Comparison", xlab = "NDVI Value")
+# Add the density of ndvi_after
+lines(density(values(ndvi_after), na.rm = TRUE), col = "green")
+# Add labels directly on the plot
+text(x = 0.6, y = 1.5, labels = "Before", col = "blue", cex = 1.0)
+text(x = -0.3, y = 1.5, labels = "After", col = "green", cex = 1.0)
+
+
 
 par(mfrow = c(1,2))
 dvi_before <- cropped_before[[1]] - cropped_before[[3]]
