@@ -30,8 +30,9 @@ setwd("C:/Users/madhu/Desktop/") # Set the working directory
 
 before <- rast("1979_St_Helens.tif") # Load the pre-eruption 1979 image as before
 after <- rast("1980_St_Helens.tif") # Load the post-eruption 1980 image as after
+
 # The images are sourced from NASA Visible Earth: https://visibleearth.nasa.gov/images/77957/eruption-of-mount-st-helens/77958l
-# Band 1: NIR, Band 2: Red and Band 3: Green (Images captured using Landsat 3)
+# Band 1: NIR, Band 2: Red and Band 3: Green (Images captured using Landsat 3 satellite)
 
 plotRGB(before, r = 1, g = 2, b = 3) # Plot before image
 plotRGB(after, r = 1, g = 2, b = 3) # Plot after image
@@ -61,19 +62,72 @@ plot(cropped_after[[3]], main = 'Band 3 - Green')
 
 # NDVI ANALYSIS (BLOCK II)
 
+# Step 1: Find DVI and NDVI for the cropped before and after images
+
+# Find DVI by subtracting the Red band from the NIR band
+dvi_before <- (cropped_before[[1]] - cropped_before[[2]]) 
+dvi_after <- (cropped_after[[1]] - cropped_after[[2]]) 
+
+# Find NDVI by normalizing the DVI with NIR + Red   
+ndvi_before <- (cropped_before[[1]] - cropped_before[[2]]) / (cropped_before[[1]] + cropped_before[[2]])    
+ndvi_after <- (cropped_after[[1]] - cropped_after[[2]]) / (cropped_after[[1]] + cropped_after[[2]])
+    
+# Step 2: Visualize the DVI and NDVI for the images in multiframe
+
+par(mfrow = c(2,2)) # Create plotting area with 2 rows and 2 columns
+plot(dvi_before, main = "DVI (Before)") # Plot DVI before
+plot(dvi_after, main = "DVI (After)") # Plot DVI after    
+plot(ndvi_before, main = "NDVI (Before)") # Plot NDVI before
+plot(ndvi_after, main = "NDVI (After)") # Plot NDVI after
+
+# Step 3: Make density plot of NDVI before and after values for qualitative analysis
+
+# Make density plot of NDVI before values
+plot(density(values(ndvi_before), na.rm = TRUE), col = "blue", main = "NDVI Density Comparison", xlab = "NDVI Value")
+lines(density(values(ndvi_after), na.rm = TRUE), col = "green") # Add data for NDVI after values 
+text(x = 0.6, y = 1.5, labels = "Before", col = "blue", cex = 1.0) # Add text to the plot to indicate colour of before
+text(x = -0.3, y = 1.5, labels = "After", col = "green", cex = 1.0) # Add text to the plot to indicate colour of after
+    
+# Step 4: Find and compare mean NDVI
+
+# Find mean values using global() and convert them to numeric values for cat()
+mean_before <- as.numeric(global(ndvi_before, mean, na.rm = TRUE)) 
+mean_after <- as.numeric(global(ndvi_after, mean, na.rm = TRUE)) 
+
+# Print the mean values 
+cat("Mean NDVI (Before Image):", mean_before, "\n")
+cat("Mean NDVI (After Image):", mean_after, "\n")
+
+# Step 5: Find percentage of vegetated area assuming NDVI > 0.2 is for vegetation
+
+# Divide sum of all NDVI > 0.2 values with total no. of pixels and multiply by 100 to get percentage   
+vegetated_before <- sum(values(ndvi_before) > 0.2, na.rm = TRUE) / ncell(ndvi_before) * 100
+vegetated_after <- sum(values(ndvi_after) > 0.2, na.rm = TRUE) / ncell(ndvi_after) * 100
+
+# Print the vegetated area percentages using cat()    
+cat("Percentage of Vegetated Area Before:", vegetated_before, "%\n")
+cat("Percentage of Vegetated Area After:", vegetated_after, "%\n")
+
+# Step 6: Find percentage of pixels whose NDVI reduced and plot histogram of NDVI differences
+
+# Calculate NDVI differnce between before and after 
+ndvi_diff <- ndvi_after - ndvi_before
+
+# Calculate percentage of pixels with NDVI reduction
+ndvi_reduction <- sum(ndvi_diff[] < 0, na.rm = TRUE) / ncell(ndvi_diff) * 100
+cat("Percentage of pixels with NDVI reduction:", ndvi_reduction, "%\n") # Print the percentage
+
+par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
+plot(ndvi_diff, main = "NDVI Difference (After - Before)") # Plot NDVI differnce
+hist(ndvi_diff, main = "Histogram of NDVI Differences", xlab = "NDVI Difference", col = "lightblue") # Plot historgram of NDVI differnces
 
 
-# Band 1 - NIR, Band 3 - Red, Band 2 - Blue
-par(mfrow=c(3,2))
-plot(cropped_before[[1]])
-plot(cropped_after[[1]])
-plot(cropped_before[[3]])
-plot(cropped_after[[3]])
-plot(cropped_before[[2]])
-plot(cropped_after[[2]])
+# ________________________________________________________________________________________________________________ #
 
-par(mfrow = c(1,2))
-plot(cropped_before)
+# PRINCIPAL COMPONENT ANALYSIS (Block III)
+
+    
+
 before_cl <- im.classify(cropped_before[[3]], num_clusters = 3)
 
 par(mfrow = c(1,2))
@@ -85,34 +139,12 @@ f1979
 f1980 <- freq(after_cl)
 f1980
 
-par(mfrow = c(1,2))
-ndvi_before <- (cropped_before[[1]] - cropped_before[[3]]) / (cropped_before[[1]] + cropped_before[[3]])
-plot(ndvi_before, main = "NDVI (Before)")
-
-ndvi_after <- (cropped_after[[1]] - cropped_after[[3]]) / (cropped_after[[1]] + cropped_after[[3]])
-plot(ndvi_after, main = "NDVI (After)")
-
-# Summary Statistics
-mean_before <- as.numeric(global(ndvi_before, mean, na.rm = TRUE))
-mean_after <- as.numeric(global(ndvi_after, mean, na.rm = TRUE))
-cat("Mean NDVI Before:", mean_before, "\n")
-cat("Mean NDVI After:", mean_after, "\n")
-
-#Density plot NDVI
-plot(density(values(ndvi_before), na.rm = TRUE), col = "blue", main = "NDVI Density Comparison", xlab = "NDVI Value")
-# Add the density of ndvi_after
-lines(density(values(ndvi_after), na.rm = TRUE), col = "green")
-# Add labels directly on the plot
-text(x = 0.6, y = 1.5, labels = "Before", col = "blue", cex = 1.0)
-text(x = -0.3, y = 1.5, labels = "After", col = "green", cex = 1.0)
 
 
 
-par(mfrow = c(1,2))
-dvi_before <- cropped_before[[1]] - cropped_before[[3]]
-plot(dvi_before, main = "DVI (Before)")
-dvi_after <- cropped_after[[1]] - cropped_after[[3]]
-plot(dvi_after, main = "DVI (After)")
+
+
+
 
 # Step 1: Perform PCA on the 'before' and 'after' images
 cropped_before_pca <- im.pca(cropped_before)  # Perform PCA on 'before' image
