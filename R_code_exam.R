@@ -5,7 +5,7 @@
 # KEY TECHNIQUES: NDVI Analysis, Principal Component Analysis (PCA) and Image Classification
 
 
-# ________________________________________________________________________________________________________________ #
+# _____________________________________________________________________________________________________________________________________________ #
 
 # PREPARATION (Block I)
 
@@ -58,7 +58,7 @@ plot(cropped_after[[2]], main = 'Band 2 - Red')
 plot(cropped_before[[3]], main = 'Band 3 - Green')
 plot(cropped_after[[3]], main = 'Band 3 - Green')
     
-# ________________________________________________________________________________________________________________ #
+# _____________________________________________________________________________________________________________________________________________ #
 
 # NDVI ANALYSIS (BLOCK II)
 
@@ -121,55 +121,98 @@ par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
 plot(ndvi_diff, main = "NDVI Difference (After - Before)") # Plot NDVI differnce
 hist(ndvi_diff, main = "Histogram of NDVI Differences", xlab = "NDVI Difference", col = "lightblue") # Plot historgram of NDVI differnces
 
-
-# ________________________________________________________________________________________________________________ #
+# _____________________________________________________________________________________________________________________________________________ #
 
 # PRINCIPAL COMPONENT ANALYSIS (Block III)
 
-    
+# Step 1: Perform PCA on the images using the im.pca() function and extract PC1
 
-before_cl <- im.classify(cropped_before[[3]], num_clusters = 3)
+cropped_before_pca <- im.pca(cropped_before)  # Perform PCA on cropped before image
+cropped_after_pca <- im.pca(cropped_after)  # Perform PCA on cropped after image
 
-par(mfrow = c(1,2))
-plot(cropped_after)
-after_cl <- im.classify(cropped_after[[3]], num_clusters = 3)
+pc1_before <- cropped_before_pca$PC1 # Extract PC1 in before image
+pc1_after <- cropped_after_pca$PC1 # Extract PC2 in after image
 
-f1979 <- freq(before_cl)
-f1979
-f1980 <- freq(after_cl)
-f1980
+# Step 2: Normalize the PC1 values (0 to 1 scaling)
 
-
-
-
-
-
-
-
-# Step 1: Perform PCA on the 'before' and 'after' images
-cropped_before_pca <- im.pca(cropped_before)  # Perform PCA on 'before' image
-cropped_after_pca <- im.pca(cropped_after)    # Perform PCA on 'after' image
-
-# Step 2: Extract the first principal component (PC1)
-pc1_before <- cropped_before_pca$PC1
-pc1_after <- cropped_after_pca$PC1
-
-# Step 3: Normalize the PC1 values (0 to 1 scaling)
 pc1_before <- (pc1_before - min(pc1_before[])) / (max(pc1_before[]) - min(pc1_before[]))
 pc1_after <- (pc1_after - min(pc1_after[])) / (max(pc1_after[]) - min(pc1_after[]))
 
-# Step 4: Plot PC1 for 'before' and 'after' side by side
-par(mfrow = c(1, 2))  # Set up a 1x2 plotting area
-plot(pc1_before, main = "PC1 - Before", col = viridis::viridis(255))  # Plot PC1 for 'before'
-plot(pc1_after, main = "PC1 - After", col = viridis::viridis(255))    # Plot PC1 for 'after'
+# Step 3: Plot PC1 for cropped_before and cropped_after side by side
 
-pc1_after_resampled <- resample(pc1_after, pc1_before)
+par(mfrow = c(1, 2))  # Create plotting area with 1 row and 2 columns
+plot(pc1_before, main = "PC1 - Before")  # Plot PC1 for before
+plot(pc1_after, main = "PC1 - After")  # Plot PC1 for after
 
-# Calculate the difference between PC1 in 'before' and 'after'
-pc1_diff <- pc1_before - pc1_after_resampled
+# Step 4: Find the differece between PC1 before and after and quantize negative change
+    
+pc1_diff <- pc1_after - pc1_before # Find PC1 difference
+plot(pc1_diff, main = "PC1 Difference") # Plot the difference
 
 # Calculate the percentage of pixels with negative changes in PC1
-pc1_reduction <- sum(pc1_diff[] < 0, na.rm = TRUE) / ncell(pc1_diff) * 100
+pc1_reduction <- sum(pc1_after[] < pc1_before[], na.rm = TRUE) / ncell(pc1_diff) * 100
 
-# Print the percentage of reduction
-print(paste("Percentage of area with reduction in PC1:", round(pc1_reduction, 2), "%"))
+# Print the percentage of pixels with reduction
+print(paste("Percentage of area with reduction in PC1:", round(pc1_reduction, 2), "%"))    
+
+# _____________________________________________________________________________________________________________________________________________ #
+
+# IMAGE CLASSIFICATION (Block IV)
+
+# Step 1: Classify pixels in the images into 3 clusters   
+
+# Classification has been done on Band 3 (Green) into three clusters, since qualitatively it gave the best results in terms of
+# identifying forest area. So one cluster represents forest but the second and third together represent non-forest area
+    
+before_cl <- im.classify(cropped_before[[3]], num_clusters = 3) # Classify in before
+par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
+plot(cropped_before, main = "Original 'Before' Image")
+plot(before_cl, main = "Classified 'Before'")
+
+after_cl <- im.classify(cropped_after[[3]], num_clusters = 3) # Classify in before
+par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
+plot(cropped_after, main = "Original 'After' Image")
+plot(after_cl, main = "Classified 'After'")
+    
+# Step 2: Make summary tables with frequency / percentage of each class using freq()
+
+f1979 <- freq(before_cl) # Get the frequency of each class in 1979 image
+f1979 # Print the table with frequency
+tot1979 <- ncell(before_cl) # Extract total number of pixels in before_cl
+
+f1980 <- freq(after_cl) # Get the frequency of each class in 1980 image
+f1980 # Print the table with frequency
+tot1980 <- ncell(after_cl) # Extract total number of pixels in after_cl
+
+# Total number of pixels in both before_cl and after_cl should be same 
+
+# Convert both tables so that they show percentage of each class
+p1979 <- f1979 * 100 / tot1979 # Get percentage table of 1979
+p1979 # Print the percentage table for 1979
+p1980 <- f1980 * 100 / tot1980 # Get percentage table of 1980
+p1980 # Print the percentage table for 1980
+
+# Step 3: Identiy which cluster is forest and make final data frame
+
+class <- c("Forest","Other") # Make the row containg column names
+y1979 <- c(77.8, 22.2) # Add data for 1979
+y1980 <- c(54.5, 45.5) # Add data for 1980
+
+tabout <- data.frame(class, y1979, y1980) # Make the data frame
+print(tabout) # Print the final dataframe
+
+# Step 4: Make bar plots for the final data frame and combine them
+
+# Make plot for 1979 data    
+p1 <- ggplot(tabout, aes(x=class, y=y1979, color=class)) + geom_bar(stat="identity", fill="white") + ylim(c(0,100)) +
+      labs(x = "Class", y = "Cover Percentage in 1979") # Add labels for the axes
+
+# Make plot for 1980 data
+p2 <- ggplot(tabout, aes(x=class, y=y1980, color=class)) + geom_bar(stat="identity", fill="white") + ylim(c(0,100)) + 
+      labs(x = "Class", y = "Cover Percentage in 1980") # Add labels for the axes
+
+# Note that in both plots, ylim is already set from 0 to 100 since we want fair comparison of data
+
+p1 + p2 # Finally, combine the bar plots using the patchwork package syntax and finish the project.
+
+# _____________________________________________________________________________________________________________________________________________ #
