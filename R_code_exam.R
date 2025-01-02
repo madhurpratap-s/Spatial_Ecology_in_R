@@ -1,24 +1,67 @@
-# In this project I will analyze the vegetation loss due to Mt St Helena eruption.
-# I am posting rough code in the beginning and then will organize it properly.
+# This project presents an approach to detect and quantify changes in forest cover,
+# using the damage caused by the 1980 Mt. St. Helens eruption as an example. 1979 Pre and 1980 Post-eruption images have been
+# analyzed via various remote sensing and image processing techniques to quantify changes in the Gifford Pinchot National Forest.
 
-library(raster)
-library(terra)
-library(imageRy)
+# KEY TECHNIQUES: NDVI Analysis, Principal Component Analysis (PCA) and Image Classification
 
-setwd("C:/Users/madhu/Desktop/")
 
-nrow(before)
-ncol(before)
+# ________________________________________________________________________________________________________________ #
 
-crop_extent <- extent(2500, 3400, 700, 1430)
-# Crop the raster
-cropped_before <- crop(before, crop_extent)
-plot(cropped_before)
+# PREPARATION (Block I)
 
-crop_extent <- extent(2550, 3450, 700, 1430)
-# Crop the raster
-cropped_after <- crop(after, crop_extent)
-plot(cropped_after)
+# Step 1: Install required packages (Skip if already done)
+
+install.packages(c("terra", "raster", "patchwork", "ggplot2", "devtools"))
+
+library(devtools) # Load the devtools package to download packages from Github
+devtools::install_github("ducciorocchini/imageRy") # Install the imageRy package from Github
+
+# Step 2: Load all the required packages for the project 
+
+library(terra)     # for loading the raster data
+library(raster)    # for cropping the original images
+library(imageRy)   # for image processing
+library(ggplot2)   # for creating plots
+library(patchwork) # for combining multiple ggplot2 plots
+
+# Step 3: Set working directory to the folder where the images are stored and load them
+
+setwd("C:/Users/madhu/Desktop/") # Set the working directory
+
+before <- rast("1979_St_Helens.tif") # Load the pre-eruption 1979 image as before
+after <- rast("1980_St_Helens.tif") # Load the post-eruption 1980 image as after
+# The images are sourced from NASA Visible Earth: https://visibleearth.nasa.gov/images/77957/eruption-of-mount-st-helens/77958l
+# Band 1: NIR, Band 2: Red and Band 3: Green (Images captured using Landsat 3)
+
+plotRGB(before, r = 1, g = 2, b = 3) # Plot before image
+plotRGB(after, r = 1, g = 2, b = 3) # Plot after image
+
+# Step 4: Crop the images with appropriate extent to focus on Mt. St. Helens and surrounding forest cover
+
+crop_extent <- extent(2500, 3400, 700, 1430) # Define the crop extent
+cropped_before <- crop(before, crop_extent) # Crop the 'before' image
+cropped_after <- crop(after, crop_extent) # Crop the 'after' image
+
+# Step 5: Plot the cropped images and their bands in separate multi-frames
+
+par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
+plot(cropped_before) # Plot the "cropped_before" image
+plot(cropped_after) # Plot the "cropped_after" image
+
+par(mfrow = c(3,2) # Create plotting area with 3 rows and 2 columns
+# Plot all individual bands of the images with labels    
+plot(cropped_before[[1]], main = 'Band 1 - NIR')
+plot(cropped_after[[1]], main = 'Band 1 - NIR')
+plot(cropped_before[[2]], main = 'Band 2 - Red')
+plot(cropped_after[[2]], main = 'Band 2 - Red')
+plot(cropped_before[[3]], main = 'Band 3 - Green')
+plot(cropped_after[[3]], main = 'Band 3 - Green')
+    
+# ________________________________________________________________________________________________________________ #
+
+# NDVI ANALYSIS (BLOCK II)
+
+
 
 # Band 1 - NIR, Band 3 - Red, Band 2 - Blue
 par(mfrow=c(3,2))
