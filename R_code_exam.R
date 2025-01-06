@@ -26,7 +26,7 @@ library(patchwork) # for combining multiple ggplot2 plots
 
 # Step 3: Set working directory to the folder where the images are stored and load them
 
-setwd("C:/Users/madhu/Desktop/") # Set the working directory
+setwd("C:/Users/madhu/Desktop/Spatial Ecology") # Set the working directory
 
 before <- rast("1979_St_Helens.tif") # Load the pre-eruption 1979 image as before
 after <- rast("1980_St_Helens.tif") # Load the post-eruption 1980 image as after
@@ -49,7 +49,7 @@ par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
 plot(cropped_before) # Plot the "cropped_before" image
 plot(cropped_after) # Plot the "cropped_after" image
 
-par(mfrow = c(3,2) # Create plotting area with 3 rows and 2 columns
+par(mfrow = c(3,2)) # Create plotting area with 3 rows and 2 columns
 # Plot all individual bands of the images with labels    
 plot(cropped_before[[1]], main = 'Band 1 - NIR')
 plot(cropped_after[[1]], main = 'Band 1 - NIR')
@@ -98,6 +98,8 @@ mean_after <- as.numeric(global(ndvi_after, mean, na.rm = TRUE))
 cat("Mean NDVI (Before Image):", mean_before, "\n")
 cat("Mean NDVI (After Image):", mean_after, "\n")
 
+# Mean NDVI: Before = 0.19, After = 0.10 => 47.37 % Reduction
+
 # Step 5: Find percentage of vegetated area assuming NDVI > 0.2 is for vegetation
 
 # Divide sum of all NDVI > 0.2 values with total no. of pixels and multiply by 100 to get percentage   
@@ -108,6 +110,8 @@ vegetated_after <- sum(values(ndvi_after) > 0.2, na.rm = TRUE) / ncell(ndvi_afte
 cat("Percentage of Vegetated Area Before:", vegetated_before, "%\n")
 cat("Percentage of Vegetated Area After:", vegetated_after, "%\n")
 
+# Using 0.2 NDVI Threshold, Forest Area: before = 54.9 %, after = 39.4 % => 28.3 % Reduction
+
 # Step 6: Find percentage of pixels whose NDVI reduced and plot histogram of NDVI differences
 
 # Calculate NDVI differnce between before and after 
@@ -117,6 +121,8 @@ ndvi_diff <- ndvi_after - ndvi_before
 ndvi_reduction <- sum(ndvi_diff[] < 0, na.rm = TRUE) / ncell(ndvi_diff) * 100
 cat("Percentage of pixels with NDVI reduction:", ndvi_reduction, "%\n") # Print the percentage
 
+# Percentage of pixels whose NDVI reduced: 62.5 % (making increased = 37.5 %)
+
 par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
 plot(ndvi_diff, main = "NDVI Difference (After - Before)") # Plot NDVI differnce
 hist(ndvi_diff, main = "Histogram of NDVI Differences", xlab = "NDVI Difference", col = "lightblue") # Plot historgram of NDVI differnces
@@ -125,35 +131,68 @@ hist(ndvi_diff, main = "Histogram of NDVI Differences", xlab = "NDVI Difference"
 
 # PRINCIPAL COMPONENT ANALYSIS (Block III)
 
-# Step 1: Perform PCA on the images using the im.pca() function and extract PC1
+# Step 1: Perform PCA on the images using the im.pca() function and extract PC1 and PC2
 
 cropped_before_pca <- im.pca(cropped_before)  # Perform PCA on cropped before image
 cropped_after_pca <- im.pca(cropped_after)  # Perform PCA on cropped after image
 
 pc1_before <- cropped_before_pca$PC1 # Extract PC1 in before image
-pc1_after <- cropped_after_pca$PC1 # Extract PC2 in after image
+pc1_after <- cropped_after_pca$PC1 # Extract PC1 in after image
+pc2_before <- cropped_before_pca$PC2
+pc2_after <- cropped_after_pca$PC2
 
-# Step 2: Normalize the PC1 values (0 to 1 scaling)
+# Step 2: Normalize the PC1 and PC2 values (0 to 1 scaling)
 
 pc1_before <- (pc1_before - min(pc1_before[])) / (max(pc1_before[]) - min(pc1_before[]))
 pc1_after <- (pc1_after - min(pc1_after[])) / (max(pc1_after[]) - min(pc1_after[]))
+pc2_before <- (pc2_before - min(pc2_before[])) / (max(pc2_before[]) - min(pc2_before[]))
+pc2_after <- (pc2_after - min(pc2_after[])) / (max(pc2_after[]) - min(pc2_after[]))
 
-# Step 3: Plot PC1 for cropped_before and cropped_after side by side
+# Step 3: Plot PC1 and PC2 for cropped_before and cropped_after side by side
 
-par(mfrow = c(1, 2))  # Create plotting area with 1 row and 2 columns
+par(mfrow = c(2, 2))  # Create a plotting area with 2 rows and 2 columns
 plot(pc1_before, main = "PC1 - Before")  # Plot PC1 for before
 plot(pc1_after, main = "PC1 - After")  # Plot PC1 for after
+plot(pc2_before, main = "PC2 - Before")  # Plot PC2 for before
+plot(pc2_after, main = "PC2 - After")  # Plot PC2 for after
 
-# Step 4: Find the differece between PC1 before and after and quantize negative change
-    
-pc1_diff <- pc1_after - pc1_before # Find PC1 difference
-plot(pc1_diff, main = "PC1 Difference") # Plot the difference
+# Step 4: Find the difference for PC1 and PC2 before and after and quantize negative change
 
-# Calculate the percentage of pixels with negative changes in PC1
+pc1_diff <- pc1_after - pc1_before  # PC1 difference
+pc2_diff <- pc2_after - pc2_before  # PC2 difference
+
+# Plot the differences
+par(mfrow = c(1, 2))  # Create a plotting area with 1 row and 2 columns
+plot(pc1_diff, main = "PC1 Difference")  # Plot PC1 difference
+plot(pc2_diff, main = "PC2 Difference")  # Plot PC2 difference
+
+# Step 5: Calculate the percentage of pixels with negative changes in PC1 and PC2
+
 pc1_reduction <- sum(pc1_after[] < pc1_before[], na.rm = TRUE) / ncell(pc1_diff) * 100
+pc2_reduction <- sum(pc2_after[] < pc2_before[], na.rm = TRUE) / ncell(pc2_diff) * 100
 
-# Print the percentage of pixels with reduction
-print(paste("Percentage of area with reduction in PC1:", round(pc1_reduction, 2), "%"))    
+# Print the percentages of pixels with reductions
+print(paste("Percentage of area with reduction in PC1:", round(pc1_reduction, 2), "%"))
+print(paste("Percentage of area with reduction in PC2:", round(pc2_reduction, 2), "%")) 
+
+# Percentage of area with reduction in PC1: 48.01
+# Percentage of area with reduction in PC2: 91.82
+
+# Step 6: Calculate the mean values of PC1 and PC2 for before and after
+
+mean_pc1_before <- mean(pc1_before[], na.rm = TRUE)  # Mean PC1 for before
+mean_pc1_after <- mean(pc1_after[], na.rm = TRUE)  # Mean PC1 for after
+mean_pc2_before <- mean(pc2_before[], na.rm = TRUE)  # Mean PC2 for before
+mean_pc2_after <- mean(pc2_after[], na.rm = TRUE)  # Mean PC2 for after
+
+# Print the mean values
+print(paste("Mean PC1 (Before):", round(mean_pc1_before, 3)))
+print(paste("Mean PC1 (After):", round(mean_pc1_after, 3)))
+print(paste("Mean PC2 (Before):", round(mean_pc2_before, 3)))
+print(paste("Mean PC2 (After):", round(mean_pc2_after, 3)))
+
+# Mean PC1 values: Before = 0.291, After = 0.364
+# Mean PC2 values: Before = 0.702, After = 0.481
 
 # _____________________________________________________________________________________________________________________________________________ #
 
