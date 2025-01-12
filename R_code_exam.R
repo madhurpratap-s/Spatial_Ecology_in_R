@@ -100,17 +100,17 @@ cat("Mean NDVI (After Image):", mean_after, "\n")
 
 # Mean NDVI: Before = 0.19, After = 0.10 => 47.37 % Reduction
 
-# Step 5: Find percentage of vegetated area assuming NDVI > 0.2 is for vegetation
+# Step 5: Find percentage of vegetated area assuming NDVI > 0.4 is for vegetation
 
-# Divide sum of all NDVI > 0.2 values with total no. of pixels and multiply by 100 to get percentage   
-vegetated_before <- sum(values(ndvi_before) > 0.2, na.rm = TRUE) / ncell(ndvi_before) * 100
-vegetated_after <- sum(values(ndvi_after) > 0.2, na.rm = TRUE) / ncell(ndvi_after) * 100
+# Divide sum of all NDVI > 0.4 values with total no. of pixels and multiply by 100 to get percentage   
+vegetated_before <- sum(values(ndvi_before) > 0.4, na.rm = TRUE) / ncell(ndvi_before) * 100
+vegetated_after <- sum(values(ndvi_after) > 0.4, na.rm = TRUE) / ncell(ndvi_after) * 100
 
 # Print the vegetated area percentages using cat()    
 cat("Percentage of Vegetated Area Before:", vegetated_before, "%\n")
 cat("Percentage of Vegetated Area After:", vegetated_after, "%\n")
 
-# Using 0.2 NDVI Threshold, Forest Area: before = 54.9 %, after = 39.4 % => 28.3 % Reduction
+# Using 0.4 NDVI Threshold, Forest Area: before = 18 %, after = 10.4 % => 42.2 % Reduction
 
 # Step 6: Find percentage of pixels whose NDVI reduced and plot histogram of NDVI differences
 
