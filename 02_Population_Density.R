@@ -93,7 +93,7 @@ par(mfrow=c(1,2))
 cln <- colorRampPalette(c("turquoise", "coral", "plum", "forestgreen"))(100)
 plot(densitymap, col=cln)
 
-clg <- colorRampPalette(c("crimson", "saddlebrown", "slateblue", "goldenrod"))(100)
+clg <- colorRampPalette(c("forestgreen", "saddlebrown", "slateblue", "goldenrod"))(100)
 plot(densitymap, col=clg)
 
 # Color customization: To make maps color-blind friendly, it's important to avoid using certain color combinations
