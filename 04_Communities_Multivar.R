@@ -14,7 +14,7 @@ head(dune)
 multivar <- decorana(dune)
 
 # Display the DCA results
-mulivar
+multivar
 
 # Define the lengths of DCA axes obtained from the decorana plot
 dca1 <- 3.7004
