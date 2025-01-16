@@ -1,7 +1,7 @@
 # Population Ecology analysis using Spatstat package
 
-# spatstat is an R package used for spatial statistics with a strong focus on analysing spatial point patterns in 2d,
-# (with some support for 3D and very basic support for space-time)
+# spatstat is an R package used for spatial statistics with a strong focus on analysing spatial point patterns in 2d
+# with some support for 3D and very basic support for space-time
 
 # Install and load the required package for point pattern analysis
 install.packages("spatstat")
