@@ -1,4 +1,4 @@
-# Let's explore the saptial distribution of a species using the SDM package and other tools
+# Let's explore the spatial distribution of a species using the SDM package and other tools
 # Recall that when installing a package, we use quotes around package name but when loading the library, quotes are not required.
 # Note that I do not add dev.off() in code because I followed the course in R Notebooks 
 
