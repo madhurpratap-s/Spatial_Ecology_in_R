@@ -1,5 +1,5 @@
 # Overlap: Estimates of Coefficient of Overlapping for Species Activity Pattern
-# Code for analzying temporal activity patterns of different species and their overlap using KDEs
+# Code for analyzing temporal activity patterns of different species and their overlap using KDEs
 
 # Download the "overlap" package
 install.packages("overlap")
