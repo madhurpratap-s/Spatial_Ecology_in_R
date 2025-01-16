@@ -205,13 +205,13 @@ print(paste("Mean PC2 (After):", round(mean_pc2_after, 3)))
     
 before_cl <- im.classify(cropped_before[[3]], num_clusters = 3) # Classify in before
 par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
-plot(cropped_before, main = "Original 'Before' Image")
-plot(before_cl, main = "Classified 'Before'")
+plot(cropped_before, main = "Original 'Before' Image") # Plot original cropped before image
+plot(before_cl, main = "Classified 'Before'") # Plot the classification outcome of cropped before
 
-after_cl <- im.classify(cropped_after[[3]], num_clusters = 3) # Classify in before
+after_cl <- im.classify(cropped_after[[3]], num_clusters = 3) # Classify in after
 par(mfrow = c(1,2)) # Create plotting area with 1 row and 2 columns
-plot(cropped_after, main = "Original 'After' Image")
-plot(after_cl, main = "Classified 'After'")
+plot(cropped_after, main = "Original 'After' Image") # Plot original cropped after image
+plot(after_cl, main = "Classified 'After'") # Plot the classification outcome of cropped after
     
 # Step 2: Make summary tables with frequency / percentage of each class using freq()
 
