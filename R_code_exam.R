@@ -138,8 +138,8 @@ cropped_after_pca <- im.pca(cropped_after)  # Perform PCA on cropped after image
 
 pc1_before <- cropped_before_pca$PC1 # Extract PC1 in before image
 pc1_after <- cropped_after_pca$PC1 # Extract PC1 in after image
-pc2_before <- cropped_before_pca$PC2
-pc2_after <- cropped_after_pca$PC2
+pc2_before <- cropped_before_pca$PC2 # Extract PC2 in before image
+pc2_after <- cropped_after_pca$PC2 # Extract PC2 in after image
 
 # Step 2: Normalize the PC1 and PC2 values (0 to 1 scaling)
 
